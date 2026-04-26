@@ -5,12 +5,14 @@ import { HTML_BOILERPLATE } from './constants.js';
 
 let isFirstRun = true;
 
-export async function handleRenderUi(htmlBody: string, requiredLibs: string[] = []) {
+export async function handleRenderUi(htmlBody: string, requiredLibs: string[] = [], openInBrowser?: boolean) {
   const fullHtml = HTML_BOILERPLATE(htmlBody, requiredLibs, quickfillServer.port);
   fsManager.writeIndexHtml(fullHtml);
 
-  if (isFirstRun) {
-    process.stderr.write(`[Tools] First run: opening ${quickfillServer.getUrl()}` + "\n");
+  const shouldOpen = openInBrowser ?? isFirstRun;
+
+  if (shouldOpen) {
+    process.stderr.write(`[Tools] Opening browser: ${quickfillServer.getUrl()}` + "\n");
     await open(quickfillServer.getUrl());
     isFirstRun = false;
   } else {

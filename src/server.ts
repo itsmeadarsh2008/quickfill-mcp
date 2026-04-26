@@ -9,7 +9,6 @@ export class QuickfillServer {
   private server: http.Server;
   private wss: WebSocketServer;
   public port: number = 0;
-  public wsPort: number = 0;
   private clients: Set<WebSocket> = new Set();
 
   constructor() {
@@ -26,8 +25,11 @@ export class QuickfillServer {
 
   async start() {
     this.port = await getPort({ port: [3000, 3001, 3002, 3003, 3004, 3005] });
-    this.server.listen(this.port, () => {
-      process.stderr.write(`[Server] Web server running at http://localhost:${this.port}` + "\n");
+    return new Promise<void>((resolve) => {
+      this.server.listen(this.port, () => {
+        process.stderr.write(`[Server] Web server running at http://localhost:${this.port}` + "\n");
+        resolve();
+      });
     });
   }
 

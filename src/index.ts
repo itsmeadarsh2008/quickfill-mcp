@@ -41,6 +41,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               },
               description: 'Optional libraries to include (pdf.js, xlsx, tesseract.js).',
             },
+            open_in_browser: {
+              type: 'boolean',
+              description: 'Whether to automatically open the UI in the browser. Defaults to true on first run.',
+            },
           },
           required: ['html_body'],
         },
@@ -69,11 +73,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   try {
     if (name === 'render_interactive_ui') {
-      const { html_body, required_libs } = args as {
+      const { html_body, required_libs, open_in_browser } = args as {
         html_body: string;
         required_libs?: string[];
+        open_in_browser?: boolean;
       };
-      return await handleRenderUi(html_body, required_libs);
+      return await handleRenderUi(html_body, required_libs, open_in_browser);
     }
 
     if (name === 'mount_file') {
