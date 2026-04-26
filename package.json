@@ -56,5 +56,9 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+"repository": {
+  "type": "git",
+  "url": "git+https://github.com/USER_NAME/REPO_NAME.git"
+}
 }
