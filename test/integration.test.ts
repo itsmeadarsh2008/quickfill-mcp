@@ -27,7 +27,7 @@ describe('MCP Server Integration', () => {
       // console.error('[Server Stderr]', msg);
     });
 
-    // Wait for the server to initialize (Express starts on stderr log)
+    // Wait for the server to initialize (Hono starts on stderr log)
     await new Promise((resolve, reject) => {
       const timeout = setTimeout(() => reject(new Error('Server took too long to start')), 5000);
       const interval = setInterval(() => {

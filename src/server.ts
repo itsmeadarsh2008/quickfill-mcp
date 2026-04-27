@@ -1,58 +1,79 @@
-import express from 'express';
-import { WebSocketServer, WebSocket } from 'ws';
-import getPort from 'get-port';
-import http from 'http';
-import { fsManager } from './filesystem.js';
+import type { Server } from "node:http";
+import { serve } from "@hono/node-server";
+import { serveStatic } from "@hono/node-server/serve-static";
+import getPort from "get-port";
+import { Hono } from "hono";
+import { WebSocket, WebSocketServer } from "ws";
+import { fsManager } from "./filesystem.js";
 
 export class QuickfillServer {
-  private app = express();
-  private server: http.Server;
-  private wss: WebSocketServer;
-  public port: number = 0;
-  private clients: Set<WebSocket> = new Set();
+	private app = new Hono();
+	private server?: Server;
+	private wss?: WebSocketServer;
+	public port: number = 0;
+	private clients: Set<WebSocket> = new Set();
 
-  constructor() {
-    this.server = http.createServer(this.app);
-    this.wss = new WebSocketServer({ server: this.server });
+	constructor() {
+		this.app.use("/*", async (c, next) => {
+			await next();
+			c.header(
+				"Cache-Control",
+				"no-store, no-cache, must-revalidate, proxy-revalidate",
+			);
+			c.header("Pragma", "no-cache");
+			c.header("Expires", "0");
+		});
 
-    this.wss.on('connection', (ws) => {
-      this.clients.add(ws);
-      ws.on('close', () => this.clients.delete(ws));
-    });
+		this.app.use(
+			"/*",
+			serveStatic({
+				root: fsManager.tempDir,
+				rewriteRequestPath: (path) => path.replace(/^\//, ""),
+			}),
+		);
+	}
 
-    this.app.use(
-      express.static(fsManager.tempDir, {
-        setHeaders: (res) => {
-          res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-          res.setHeader('Pragma', 'no-cache');
-          res.setHeader('Expires', '0');
-        },
-      })
-    );
-  }
+	async start() {
+		this.port = await getPort({ port: [3000, 3001, 3002, 3003, 3004, 3005] });
 
-  async start() {
-    this.port = await getPort({ port: [3000, 3001, 3002, 3003, 3004, 3005] });
-    return new Promise<void>((resolve) => {
-      this.server.listen(this.port, () => {
-        process.stderr.write(`[Server] Web server running at http://localhost:${this.port}` + '\n');
-        resolve();
-      });
-    });
-  }
+		return new Promise<void>((resolve) => {
+			this.server = serve(
+				{
+					fetch: this.app.fetch,
+					port: this.port,
+				},
+				(info) => {
+					process.stderr.write(
+						`[Server] Web server running at http://localhost:${info.port}` +
+							"\n",
+					);
+					resolve();
+				},
+			);
 
-  broadcastReload() {
-    process.stderr.write(`[Server] Broadcasting reload to ${this.clients.size} clients` + '\n');
-    for (const client of this.clients) {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send('reload');
-      }
-    }
-  }
+			// Attach WebSocket server to the underlying http server
+			this.wss = new WebSocketServer({ server: this.server });
+			this.wss.on("connection", (ws) => {
+				this.clients.add(ws);
+				ws.on("close", () => this.clients.delete(ws));
+			});
+		});
+	}
 
-  getUrl() {
-    return `http://localhost:${this.port}`;
-  }
+	broadcastReload() {
+		process.stderr.write(
+			`[Server] Broadcasting reload to ${this.clients.size} clients\n`,
+		);
+		for (const client of this.clients) {
+			if (client.readyState === WebSocket.OPEN) {
+				client.send("reload");
+			}
+		}
+	}
+
+	getUrl() {
+		return `http://localhost:${this.port}`;
+	}
 }
 
 export const quickfillServer = new QuickfillServer();
