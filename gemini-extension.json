@@ -1,6 +1,6 @@
 {
-  "name": "quickfill",
-  "version": "1.0.15",
+  "name": "quickfill-mcp",
+  "version": "1.2.5",
   "description": "Generative UI Toolkit for AI Agents via MCP",
   "mcpServers": {
     "quickfill": {
