@@ -15,10 +15,10 @@ export const HOT_RELOAD_SCRIPT = (_wsPort: number) => `
     let socket;
     function connect() {
       socket = new WebSocket(\`ws://\${window.location.host}\`);
-      socket.onmessage = (msg) => { 
+      socket.onmessage = (msg) => {
         if(msg.data === 'reload') {
           console.log('Hot reload triggered');
-          window.location.reload(); 
+          window.location.reload();
         }
       };
       socket.onclose = () => {
