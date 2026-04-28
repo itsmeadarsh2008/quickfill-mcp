@@ -19,6 +19,8 @@ Quickfill is a lightweight **Generative UI Toolkit** delivered via the Model Con
 ---
 
 ## Overview
+<img src="./output.gif">
+
 **Quickfill** bridges the gap between AI reasoning and functional user interfaces. Instead of the AI simply describing a dashboard or a tool, it **builds and launches it** instantly in your browser. No project setup, no `npm install`, no boilerplate—just pure generative UI.
 
 It uses a high-performance stack powered by **Hono**, **Alpine.js**, and **Tailwind CSS** to render lightweight, hot-reloading frontends directly from your conversation.
