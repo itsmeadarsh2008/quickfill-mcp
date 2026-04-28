@@ -15,7 +15,7 @@ export const CDN_LINKS = {
 		'<script type="module">import mermaid from "https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs"; window.mermaid = mermaid;</script>',
 };
 
-export function getShellHtml(_port) {
+export function getShellHtml(_port: number) {
 	return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -103,7 +103,7 @@ export function getShellHtml(_port) {
 </html>`;
 }
 
-export function getHtmlBoilerplate(body, libs, _wsPort) {
+export function getHtmlBoilerplate(body: string, libs: string[], _wsPort: number) {
 	const hasMermaid = libs.includes("mermaid");
 	const hasPdf = libs.includes("pdf");
 	const hasExcel = libs.includes("excel");

@@ -9,6 +9,7 @@ import { fsManager } from "./filesystem.js";
 import { quickfillServer } from "./server.js";
 
 let isFirstRun = true;
+let streamingContent = "";
 
 export async function handleRenderUi(
 	htmlBody: string,
